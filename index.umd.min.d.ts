@@ -64,6 +64,7 @@ interface BrowserPlugin extends CorePlugin {
 type RequireAtLeastOne<T> = {
     [K in keyof T]-?: Required<Pick<T, K>> & Partial<Pick<T, Exclude<keyof T, K>>>;
 }[keyof T];
+// type valueof<T> = T[keyof T];
 /* Available built-in contexts */
 type BuiltInContexts = RequireAtLeastOne<{
     /* Toggles the web_page context */
@@ -113,6 +114,88 @@ type ConvivaTrackerConfiguration = {
     networkRequestTracking?: networkRequestTrackingConfig;
     network?: networkConfig;
 };
+/**
+ * Possible types of Device Metadata.
+ * @static
+ * @constant
+ * @memberOf Constants
+ * @enum {string}
+ */
+declare enum DeviceMetadata {
+    /**  Brand of the device. </br>
+     * Ex: "iPhone", "Samsung SmartTV" */
+    BRAND = "DeviceBrand",
+    /**  Manufacturer of the device. </br>
+     *Ex: "Samsung", "Apple" */
+    MANUFACTURER = "DeviceManufacturer",
+    /**  Model of the device. </br>
+     * Ex: "iPhone 6 Plus", "HTC One", "Roku 3", "Samsung SmartTV 2015" */
+    MODEL = "DeviceModel",
+    /**  Brand of the device. </br>
+     * Ex: "iPhone", "Samsung SmartTV" */
+    TYPE = "DeviceType",
+    /**  Type of the device. </br>
+     * Only allows the {@link Constants.DeviceType} values and discards any other string values.</br>
+     * Please get in touch with Conviva, if the Device Type you are looking for is not listed. */
+    VERSION = "DeviceVersion",
+    /**  Name of the operating system used by the device, in uppercase.</br>
+     * Ex: "WINDOWS", "LINUX", "IOS", "MAC", ANDROID", "FIREOS", "ROKU", "PLAYSTATION", "CHROMEOS". */
+    OS_NAME = "OperatingSystemName",
+    /**  Version of the operating system used by the device.</br>
+     * Ex: "10.10.1", "8.1", "T-INFOLINK2012-1012", "Fire OS 5" */
+    OS_VERSION = "OperatingSystemVersion",
+    /**  Device Category to which the used device belongs to. <br>
+     * Only allows the {@link Constants.DeviceCategory} values and discards any other string values.<br>
+     * Please get in touch with Conviva, if the Device Category you are looking for is not listed. */
+    CATEGORY = "DeviceCategory",
+    /** Application Frameowrk name */
+    FRAMEWORK_NAME = "FrameworkName",
+    /** Application Frameowrk Version */
+    FRAMEWORK_VERSION = "FrameworkVersion"
+}
+declare const DeviceMetadataConstants: {
+    readonly DeviceType: {
+        readonly CONSOLE: "Console";
+        readonly DESKTOP: "DESKTOP";
+        readonly MOBILE: "Mobile";
+        readonly SETTOP: "Settop";
+        readonly SMARTTV: "SmartTV";
+        readonly TABLET: "Tablet";
+        readonly VEHICLE: "Vehicle";
+        readonly OTHER: "Other";
+    };
+    readonly DeviceCategory: {
+        readonly ANDROID_DEVICE: "AND";
+        readonly APPLE_DEVICE: "APL";
+        readonly CHROMECAST: "CHR";
+        readonly DESKTOP_APP: "DSKAPP";
+        readonly DEVICE_SIMULATOR: "SIMULATOR";
+        readonly KAIOS_DEVICE: "KAIOS";
+        readonly LG_TV: "LGTV";
+        readonly LINUX: "LNX";
+        readonly NINTENDO: "NINTENDO";
+        readonly PLAYSTATION: "PS";
+        readonly ROKU: "RK";
+        readonly SAMSUNG_TV: "SAMSUNGTV";
+        readonly VIDAA_DEVICE: "VIDAA";
+        readonly VIZIO_TV: "VIZIOTV";
+        readonly WEB: "WEB";
+        readonly WINDOWS_DEVICE: "WIN";
+        readonly XBOX: "XB";
+    };
+};
+interface ConvivaDeviceMetadata {
+    [DeviceMetadata.BRAND]?: string;
+    [DeviceMetadata.MANUFACTURER]?: string;
+    [DeviceMetadata.MODEL]?: string;
+    [DeviceMetadata.TYPE]?: typeof DeviceMetadataConstants.DeviceType[keyof typeof DeviceMetadataConstants.DeviceType];
+    [DeviceMetadata.VERSION]?: string;
+    [DeviceMetadata.OS_NAME]?: string;
+    [DeviceMetadata.OS_VERSION]?: string;
+    [DeviceMetadata.CATEGORY]: typeof DeviceMetadataConstants.DeviceCategory[keyof typeof DeviceMetadataConstants.DeviceCategory];
+    [DeviceMetadata.FRAMEWORK_NAME]?: string;
+    [DeviceMetadata.FRAMEWORK_VERSION]?: string;
+}
 declare namespace ConvivaConstants {
     const TRACEPARENT_HEADER_KEY = "traceparent";
     enum CONFIG_PREFERENCES {
@@ -234,11 +317,6 @@ type TrackerConfiguration = {
      */
     crossDomainLinker?: (elt: HTMLAnchorElement | HTMLAreaElement) => boolean;
     /**
-     * The max size a POST request can be before the tracker will force send it
-     * @defaultValue 40000
-     */
-    maxPostBytes?: number;
-    /**
      * The max size a GET request (its complete URL) can be. Requests over this size will be tried as a POST request.
      * @defaultValue unlimited
      */
@@ -301,27 +379,6 @@ type TrackerConfiguration = {
      */
     customHeaders?: Record<string, string>;
     /**
-     * List of HTTP response status codes for which events sent to Collector should be retried in future requests.
-     * Only non-success status codes are considered (greater or equal to 300).
-     * The retry codes are only considered for GET and POST requests.
-     * By default, the tracker retries on all non-success status codes except for 400, 401, 403, 410, and 422.
-     */
-    retryStatusCodes?: number[];
-    /**
-     * List of HTTP response status codes for which events sent to Collector should not be retried in future request.
-     * Only non-success status codes are considered (greater or equal to 300).
-     * The don't retry codes are only considered for GET and POST requests.
-     * By default, the tracker retries on all non-success status codes except for 400, 401, 403, 410, and 422.
-     */
-    dontRetryStatusCodes?: number[];
-    /**
-     * Range of HTTP response status codes for which events sent to Collector should not be retried in future request.
-     * Only non-success status codes are considered (greater or equal to 300).
-     * The don't retry codes are only considered for GET and POST requests.
-     * By default, the tracker retries on all non-success status codes except 4xx series.
-     */
-    dontRetryStatusCodesRange?: number[][];
-    /**
      * Endpoint URL
      * @defaultValue - https://appgw.conviva.com
      */
@@ -339,6 +396,10 @@ type TrackerConfiguration = {
     trackerConfigUrl?: string;
     configs?: ConvivaTrackerConfiguration;
     appVersion?: string;
+    /**
+     * Possible types of Device Metadata.
+     */
+    deviceMetadata?: ConvivaDeviceMetadata;
 };
 /**
  * The data which is passed to the Activity Tracking callback
@@ -971,4 +1032,4 @@ declare function detectDocumentSize(): string;
 * Fix-up URL when page rendered from search engine cache or translated page.
 */
 declare function fixupUrl(hostName: string, href: string, referrer: string): string[];
-export { dispatchToTrackers, dispatchToTrackersInCollection, trackerExists, addTracker, getTracker, getTrackers, allTrackers, allTrackerNames, BuiltInContexts, AnonymousTrackingOptions, StateStorageStrategy, Platform, CookieSameSite, EventMethod, TraceparentGenerationConfig, metaTagsTrackingConfig, networkRequestTrackingConfig, networkConfig, ConvivaTrackerConfiguration, ConvivaConstants, TrackerConfiguration, ActivityCallbackData, ActivityCallback, ActivityTrackingConfiguration, ActivityTrackingConfigurationCallback, PageViewEvent, DisableAnonymousTrackingConfiguration, EnableAnonymousTrackingConfiguration, ClearUserDataConfiguration, FlushBufferConfiguration, BrowserPluginConfiguration, BrowserTracker, FilterCriterion, isString, isInteger, isFunction, fixupTitle, getHostName, fixupDomain, getReferrer, addEventListener, fromQuerystring, decorateQuerystring, attemptGetLocalStorage, attemptWriteLocalStorage, attemptDeleteLocalStorage, attemptGetSessionStorage, attemptWriteSessionStorage, findRootDomain, isValueInArray, deleteCookie, getCookiesWithPrefix, cookie, parseAndValidateInt, parseAndValidateFloat, getFilterByClass, getFilterByName, getCssClasses, getCssClassesAsString, deleteKeysFromLocalStorage, hasSessionStorage, hasLocalStorage, localStorageAccessible, detectViewport, detectDocumentSize, fixupUrl, BrowserPlugin, SharedState, createSharedState };
+export { dispatchToTrackers, dispatchToTrackersInCollection, trackerExists, addTracker, getTracker, getTrackers, allTrackers, allTrackerNames, BuiltInContexts, AnonymousTrackingOptions, StateStorageStrategy, Platform, CookieSameSite, EventMethod, TraceparentGenerationConfig, metaTagsTrackingConfig, networkRequestTrackingConfig, networkConfig, ConvivaTrackerConfiguration, DeviceMetadata, DeviceMetadataConstants, ConvivaDeviceMetadata, ConvivaConstants, TrackerConfiguration, ActivityCallbackData, ActivityCallback, ActivityTrackingConfiguration, ActivityTrackingConfigurationCallback, PageViewEvent, DisableAnonymousTrackingConfiguration, EnableAnonymousTrackingConfiguration, ClearUserDataConfiguration, FlushBufferConfiguration, BrowserPluginConfiguration, BrowserTracker, FilterCriterion, isString, isInteger, isFunction, fixupTitle, getHostName, fixupDomain, getReferrer, addEventListener, fromQuerystring, decorateQuerystring, attemptGetLocalStorage, attemptWriteLocalStorage, attemptDeleteLocalStorage, attemptGetSessionStorage, attemptWriteSessionStorage, findRootDomain, isValueInArray, deleteCookie, getCookiesWithPrefix, cookie, parseAndValidateInt, parseAndValidateFloat, getFilterByClass, getFilterByName, getCssClasses, getCssClassesAsString, deleteKeysFromLocalStorage, hasSessionStorage, hasLocalStorage, localStorageAccessible, detectViewport, detectDocumentSize, fixupUrl, BrowserPlugin, SharedState, createSharedState };
