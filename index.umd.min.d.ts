@@ -198,6 +198,27 @@ interface ConvivaDeviceMetadata {
 }
 declare namespace ConvivaConstants {
     const TRACEPARENT_HEADER_KEY = "traceparent";
+    enum SAMPLING_MODES {
+        NONE = "NONE",
+        RCFG = "RCFG"
+    }
+    enum SAMPLING_STATUS {
+        DERIVED = "DERIVED",
+        DEFAULT = "DEFAULT"
+    }
+    enum SAMPLING_ACTION {
+        SAMPLED = "sl",
+        NON_SAMPLED = "nsl"
+    }
+    const DEFAULT_SAMPLING_ACTION: {
+        sl: SAMPLING_MODES;
+        nsl: SAMPLING_MODES;
+    };
+    enum CONFIG_SOURCE {
+        DEFAULT = "def",
+        CACHED = "cac",
+        REMOTE = "rem"
+    }
     enum CONFIG_PREFERENCES {
         APP = 0,
         REMOTE = 1,
@@ -215,9 +236,16 @@ declare namespace ConvivaConstants {
     }
     const REMOTE_CONFIG_STORAGE_KEY = "ConvivaRemoteConfig";
     const END_POINT_STORAGE_KEY = "ConvivaEndpoint";
+    const SAMPLING_STORAGE_RANDOM_NUMBER_KEY = "ConvivaSamplingRandomNumber";
     const DEFAULT_END_POINT = "https://appgw.conviva.com";
     const REMOTE_CONFIG_URL_PREFIX = "https://rc.conviva.com/js/";
     const REMOTE_CONFIG_FILE_NAME = "/remote_config.json";
+    const DIAGNOSTIC_INFO_MAX_LENGTH: {
+        MAX_MESSAGE_LENGTH: number;
+        MAX_STACK_LENGTH: number;
+        MAX_CLASSNAME_LENGTH: number;
+        MAX_EXCEPTION_NAME_LENGTH: number;
+    };
 }
 /**
  * The configuration object for initialising the tracker
@@ -994,6 +1022,14 @@ declare function getCssClassesAsString(elt: Element): string;
  * @param string - key
  */
 declare function deleteKeysFromLocalStorage(key: string): boolean;
+/**
+ * @method truncateString
+ * Truncate a string to a specified length and add an ellipsis if needed
+ * @param str - The string to truncate
+ * @param maxLength - The maximum length of the truncated string
+ * @returns The truncated string
+ */
+declare function truncateString(str: string, maxLength: number): string;
 /*
 * Checks whether sessionStorage is available, in a way that
 * does not throw a SecurityError in Firefox if "always ask"
@@ -1032,4 +1068,4 @@ declare function detectDocumentSize(): string;
 * Fix-up URL when page rendered from search engine cache or translated page.
 */
 declare function fixupUrl(hostName: string, href: string, referrer: string): string[];
-export { dispatchToTrackers, dispatchToTrackersInCollection, trackerExists, addTracker, getTracker, getTrackers, allTrackers, allTrackerNames, BuiltInContexts, AnonymousTrackingOptions, StateStorageStrategy, Platform, CookieSameSite, EventMethod, TraceparentGenerationConfig, metaTagsTrackingConfig, networkRequestTrackingConfig, networkConfig, ConvivaTrackerConfiguration, DeviceMetadata, DeviceMetadataConstants, ConvivaDeviceMetadata, ConvivaConstants, TrackerConfiguration, ActivityCallbackData, ActivityCallback, ActivityTrackingConfiguration, ActivityTrackingConfigurationCallback, PageViewEvent, DisableAnonymousTrackingConfiguration, EnableAnonymousTrackingConfiguration, ClearUserDataConfiguration, FlushBufferConfiguration, BrowserPluginConfiguration, BrowserTracker, FilterCriterion, isString, isInteger, isFunction, fixupTitle, getHostName, fixupDomain, getReferrer, addEventListener, fromQuerystring, decorateQuerystring, attemptGetLocalStorage, attemptWriteLocalStorage, attemptDeleteLocalStorage, attemptGetSessionStorage, attemptWriteSessionStorage, findRootDomain, isValueInArray, deleteCookie, getCookiesWithPrefix, cookie, parseAndValidateInt, parseAndValidateFloat, getFilterByClass, getFilterByName, getCssClasses, getCssClassesAsString, deleteKeysFromLocalStorage, hasSessionStorage, hasLocalStorage, localStorageAccessible, detectViewport, detectDocumentSize, fixupUrl, BrowserPlugin, SharedState, createSharedState };
+export { dispatchToTrackers, dispatchToTrackersInCollection, trackerExists, addTracker, getTracker, getTrackers, allTrackers, allTrackerNames, BuiltInContexts, AnonymousTrackingOptions, StateStorageStrategy, Platform, CookieSameSite, EventMethod, TraceparentGenerationConfig, metaTagsTrackingConfig, networkRequestTrackingConfig, networkConfig, ConvivaTrackerConfiguration, DeviceMetadata, DeviceMetadataConstants, ConvivaDeviceMetadata, ConvivaConstants, TrackerConfiguration, ActivityCallbackData, ActivityCallback, ActivityTrackingConfiguration, ActivityTrackingConfigurationCallback, PageViewEvent, DisableAnonymousTrackingConfiguration, EnableAnonymousTrackingConfiguration, ClearUserDataConfiguration, FlushBufferConfiguration, BrowserPluginConfiguration, BrowserTracker, FilterCriterion, isString, isInteger, isFunction, fixupTitle, getHostName, fixupDomain, getReferrer, addEventListener, fromQuerystring, decorateQuerystring, attemptGetLocalStorage, attemptWriteLocalStorage, attemptDeleteLocalStorage, attemptGetSessionStorage, attemptWriteSessionStorage, findRootDomain, isValueInArray, deleteCookie, getCookiesWithPrefix, cookie, parseAndValidateInt, parseAndValidateFloat, getFilterByClass, getFilterByName, getCssClasses, getCssClassesAsString, deleteKeysFromLocalStorage, truncateString, hasSessionStorage, hasLocalStorage, localStorageAccessible, detectViewport, detectDocumentSize, fixupUrl, BrowserPlugin, SharedState, createSharedState };

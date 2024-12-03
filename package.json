@@ -1,6 +1,6 @@
 {
   "name": "@convivainc/browser-tracker-core",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Types file reference",
   "main": "index.umd.min.d.ts",
   "types": "index.umd.min.d.ts",
