@@ -27,7 +27,7 @@
 * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-import { CorePlugin, CommonEventProperties, SelfDescribingJson, TrackerCore, CorePluginConfiguration } from "@convivainc/tracker-core";
+import { CorePlugin, CommonEventProperties, SelfDescribingJson, TrackerCore, CorePluginConfiguration, ButtonClickEvent, LinkClickEvent } from "@convivainc/tracker-core";
 declare global {
     interface Document {
         attachEvent: (type: string, fn: EventListenerOrEventListenerObject) => void;
@@ -236,10 +236,10 @@ declare namespace ConvivaConstants {
     }
     const REMOTE_CONFIG_STORAGE_KEY = "ConvivaRemoteConfig";
     const END_POINT_STORAGE_KEY = "ConvivaEndpoint";
-    const SAMPLING_STORAGE_RANDOM_NUMBER_KEY = "ConvivaSamplingRandomNumber";
     const DEFAULT_END_POINT = "https://appgw.conviva.com";
     const REMOTE_CONFIG_URL_PREFIX = "https://rc.conviva.com/js/";
     const REMOTE_CONFIG_FILE_NAME = "/remote_config.json";
+    const SAMPLING_STORAGE_RANDOM_NUMBER_KEY = "ConvivaSamplingRandomNumber";
     const DIAGNOSTIC_INFO_MAX_LENGTH: {
         MAX_MESSAGE_LENGTH: number;
         MAX_STACK_LENGTH: number;
@@ -271,8 +271,8 @@ type TrackerConfiguration = {
      */
     cookieDomain?: string;
     /**
-     * The name of the _sp_.id cookie, will rename the _sp_ section
-     * @defaultValue _sp_
+     * The name of the _cnv_.id cookie, will rename the _cnv_ section
+     * @defaultValue _cnv_
      */
     cookieName?: string;
     /**
@@ -665,7 +665,7 @@ interface BrowserTracker {
      */
     setUserIdFromCookie: (cookieName: string) => void;
     /**
-     * Specify the Snowplow collector URL. Specific http or https to force it
+     * Specify the Conviva collector URL. Specific http or https to force it
      * or leave it off to match the website protocol.
      *
      * @param collectorUrl - The collector URL, with or without protocol
@@ -704,7 +704,6 @@ interface BrowserTracker {
     setCustomTags: (event?: any) => void;
     unsetCustomTags: (event?: any) => void;
     trackVideoEvent: (event?: any) => void;
-    trackAjaxEvent: (event?: any) => void;
     /**
      * Log custom event
      *
@@ -741,6 +740,18 @@ interface BrowserTracker {
      * @param trackers - The tracker identifiers which the plugin will be added to
      */
     setKeepAliveInBG: (isAlive: boolean) => void;
+    /**
+     * Clear All outstanding timers as part of cleanup process
+     *
+     */
+    clearTimers: () => void;
+    /**
+     * Returns Sampling mode
+     *
+     */
+    getSamplingMode: () => string;
+    trackButtonClick: (event: ButtonClickEvent & CommonEventProperties) => void;
+    trackLinkClick: (event: LinkClickEvent & CommonEventProperties) => void;
 }
 /**
  * Dispatch function to all specified trackers
@@ -792,35 +803,7 @@ declare function allTrackers(): Record<string, BrowserTracker>;
  * Returns all the unique tracker identifiers
  */
 declare function allTrackerNames(): string[];
-/*
-* Copyright (c) 2022 Snowplow Analytics Ltd, 2010 Anthon Pang
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-* 1. Redistributions of source code must retain the above copyright notice, this
-*    list of conditions and the following disclaimer.
-*
-* 2. Redistributions in binary form must reproduce the above copyright notice,
-*    this list of conditions and the following disclaimer in the documentation
-*    and/or other materials provided with the distribution.
-*
-* 3. Neither the name of the copyright holder nor the names of its
-*    contributors may be used to endorse or promote products derived from
-*    this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-* AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-* IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-* FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-* DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-* SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-* CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-* OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-* OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+declare function removeTrackers(trackerIds: Array<string> | undefined): void;
 declare global {
     interface EventTarget {
         attachEvent?: (type: string, fn: EventListenerOrEventListenerObject) => void;
@@ -950,7 +933,7 @@ declare function isValueInArray<T>(val: T, array: T[]): boolean;
  * @param cookieName - The name of the cookie to delete
  * @param domainName - The domain the cookie is in
  */
-declare function deleteCookie(cookieName: string, domainName?: string, sameSite?: string, secure?: boolean): void;
+declare function deleteCookie(cookieName: string, domainName?: string, sameSite?: string, secure?: boolean): string;
 /**
  * Fetches the name of all cookies beginning with a certain prefix
  *
@@ -1022,6 +1005,9 @@ declare function getCssClassesAsString(elt: Element): string;
  * @param string - key
  */
 declare function deleteKeysFromLocalStorage(key: string): boolean;
+declare function mergeConfigs(config1: any, config2: any): any;
+declare function computeSamplingMode(controlIngestConfig: any): string;
+declare function removeCachedRandomNumber(): void;
 /**
  * @method truncateString
  * Truncate a string to a specified length and add an ellipsis if needed
@@ -1068,4 +1054,4 @@ declare function detectDocumentSize(): string;
 * Fix-up URL when page rendered from search engine cache or translated page.
 */
 declare function fixupUrl(hostName: string, href: string, referrer: string): string[];
-export { dispatchToTrackers, dispatchToTrackersInCollection, trackerExists, addTracker, getTracker, getTrackers, allTrackers, allTrackerNames, BuiltInContexts, AnonymousTrackingOptions, StateStorageStrategy, Platform, CookieSameSite, EventMethod, TraceparentGenerationConfig, metaTagsTrackingConfig, networkRequestTrackingConfig, networkConfig, ConvivaTrackerConfiguration, DeviceMetadata, DeviceMetadataConstants, ConvivaDeviceMetadata, ConvivaConstants, TrackerConfiguration, ActivityCallbackData, ActivityCallback, ActivityTrackingConfiguration, ActivityTrackingConfigurationCallback, PageViewEvent, DisableAnonymousTrackingConfiguration, EnableAnonymousTrackingConfiguration, ClearUserDataConfiguration, FlushBufferConfiguration, BrowserPluginConfiguration, BrowserTracker, FilterCriterion, isString, isInteger, isFunction, fixupTitle, getHostName, fixupDomain, getReferrer, addEventListener, fromQuerystring, decorateQuerystring, attemptGetLocalStorage, attemptWriteLocalStorage, attemptDeleteLocalStorage, attemptGetSessionStorage, attemptWriteSessionStorage, findRootDomain, isValueInArray, deleteCookie, getCookiesWithPrefix, cookie, parseAndValidateInt, parseAndValidateFloat, getFilterByClass, getFilterByName, getCssClasses, getCssClassesAsString, deleteKeysFromLocalStorage, truncateString, hasSessionStorage, hasLocalStorage, localStorageAccessible, detectViewport, detectDocumentSize, fixupUrl, BrowserPlugin, SharedState, createSharedState };
+export { dispatchToTrackers, dispatchToTrackersInCollection, trackerExists, addTracker, getTracker, getTrackers, allTrackers, allTrackerNames, removeTrackers, BuiltInContexts, AnonymousTrackingOptions, StateStorageStrategy, Platform, CookieSameSite, EventMethod, TraceparentGenerationConfig, metaTagsTrackingConfig, networkRequestTrackingConfig, networkConfig, ConvivaTrackerConfiguration, DeviceMetadata, DeviceMetadataConstants, ConvivaDeviceMetadata, ConvivaConstants, TrackerConfiguration, ActivityCallbackData, ActivityCallback, ActivityTrackingConfiguration, ActivityTrackingConfigurationCallback, PageViewEvent, DisableAnonymousTrackingConfiguration, EnableAnonymousTrackingConfiguration, ClearUserDataConfiguration, FlushBufferConfiguration, BrowserPluginConfiguration, BrowserTracker, FilterCriterion, isString, isInteger, isFunction, fixupTitle, getHostName, fixupDomain, getReferrer, addEventListener, fromQuerystring, decorateQuerystring, attemptGetLocalStorage, attemptWriteLocalStorage, attemptDeleteLocalStorage, attemptGetSessionStorage, attemptWriteSessionStorage, findRootDomain, isValueInArray, deleteCookie, getCookiesWithPrefix, cookie, parseAndValidateInt, parseAndValidateFloat, getFilterByClass, getFilterByName, getCssClasses, getCssClassesAsString, deleteKeysFromLocalStorage, mergeConfigs, computeSamplingMode, removeCachedRandomNumber, truncateString, hasSessionStorage, hasLocalStorage, localStorageAccessible, detectViewport, detectDocumentSize, fixupUrl, BrowserPlugin, SharedState, createSharedState };

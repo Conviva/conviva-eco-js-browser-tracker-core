@@ -1,7 +1,7 @@
 {
   "name": "@convivainc/browser-tracker-core",
-  "version": "0.0.4",
-  "description": "Types file reference",
+  "version": "1.0.3",
+  "description": "Types file reference for Browser Tracker Core Module",
   "main": "index.umd.min.d.ts",
   "types": "index.umd.min.d.ts",
   "scripts": {
@@ -10,7 +10,7 @@
   "author": "Conviva Inc",
   "license": "MIT",
   "dependencies": {
-    "@convivainc/tracker-core": "^0.0.2"
+    "@convivainc/tracker-core": "^1.0.3"
   },
   "repository": {
     "type": "git",
