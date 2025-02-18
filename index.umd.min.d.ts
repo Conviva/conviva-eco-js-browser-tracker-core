@@ -27,7 +27,7 @@
 * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-import { CorePlugin, CommonEventProperties, SelfDescribingJson, TrackerCore, CorePluginConfiguration, ButtonClickEvent, LinkClickEvent } from "@convivainc/tracker-core";
+import { CorePlugin, CommonEventProperties, SelfDescribingJson, TrackerCore, CorePluginConfiguration, clickElementEvent } from "@convivainc/tracker-core";
 declare global {
     interface Document {
         attachEvent: (type: string, fn: EventListenerOrEventListenerObject) => void;
@@ -246,6 +246,8 @@ declare namespace ConvivaConstants {
         MAX_CLASSNAME_LENGTH: number;
         MAX_EXCEPTION_NAME_LENGTH: number;
     };
+    const CLICK_KEY_MAX_LENGTH = 1024;
+    const CLICK_DEBOUNCING_DELAY = 300;
 }
 /**
  * The configuration object for initialising the tracker
@@ -474,6 +476,18 @@ interface ActivityTrackingConfigurationCallback {
 interface PageViewEvent {
     /** Override the page title */
     title?: string | null;
+    /** A callback which will fire on the page view and each subsequent activity tracking event for this page view */
+    contextCallback?: (() => Array<SelfDescribingJson>) | null;
+}
+/**
+ * A Custom event
+ * Used for tracking a custom event
+ */
+interface CustomEvent {
+    /** Override the page title */
+    name: string | null;
+    /** The custom event data */
+    data: any;
     /** A callback which will fire on the page view and each subsequent activity tracking event for this page view */
     contextCallback?: (() => Array<SelfDescribingJson>) | null;
 }
@@ -724,7 +738,7 @@ interface BrowserTracker {
      *
      * @param event - The Custom Event properties
      */
-    trackCustomEvent: (event?: PageViewEvent & CommonEventProperties) => void;
+    trackCustomEvent: (event?: CustomEvent & CommonEventProperties) => void;
     /**
      * Disables anonymous tracking if active (ie. tracker initialized with `anonymousTracking`)
      * For stateStorageStrategy override, uses supplied value first,
@@ -765,9 +779,10 @@ interface BrowserTracker {
      *
      */
     getSamplingMode: () => string;
-    trackButtonClick: (event: ButtonClickEvent & CommonEventProperties) => void;
-    trackLinkClick: (event: LinkClickEvent & CommonEventProperties) => void;
+    trackButtonClick: (event: clickElementEvent & CommonEventProperties) => void;
+    trackLinkClick: (event: clickElementEvent & CommonEventProperties) => void;
     trackErrorEvent: (event: ErrorEventProperties & CommonEventProperties) => void;
+    getPageViewSent: () => boolean;
 }
 /**
  * Dispatch function to all specified trackers
@@ -1032,6 +1047,10 @@ declare function removeCachedRandomNumber(): void;
  * @returns The truncated string
  */
 declare function truncateString(str: string, maxLength: number): string;
+declare const getAbortController: () => AbortController | undefined;
+declare const getAbortControllerSignal: () => AbortSignal | undefined;
+declare const createAbortSignalAndController: () => void;
+declare const resetAbortSignalAndController: () => void;
 /*
 * Checks whether sessionStorage is available, in a way that
 * does not throw a SecurityError in Firefox if "always ask"
@@ -1070,4 +1089,4 @@ declare function detectDocumentSize(): string;
 * Fix-up URL when page rendered from search engine cache or translated page.
 */
 declare function fixupUrl(hostName: string, href: string, referrer: string): string[];
-export { dispatchToTrackers, dispatchToTrackersInCollection, trackerExists, addTracker, getTracker, getTrackers, allTrackers, allTrackerNames, removeTrackers, BuiltInContexts, AnonymousTrackingOptions, StateStorageStrategy, Platform, CookieSameSite, EventMethod, TraceparentGenerationConfig, metaTagsTrackingConfig, networkRequestTrackingConfig, networkConfig, ConvivaTrackerConfiguration, DeviceMetadata, DeviceMetadataConstants, ConvivaDeviceMetadata, ConvivaConstants, TrackerConfiguration, ActivityCallbackData, ActivityCallback, ActivityTrackingConfiguration, ActivityTrackingConfigurationCallback, PageViewEvent, DisableAnonymousTrackingConfiguration, EnableAnonymousTrackingConfiguration, ClearUserDataConfiguration, FlushBufferConfiguration, BrowserPluginConfiguration, ErrorEventProperties, BrowserTracker, FilterCriterion, isString, isInteger, isFunction, fixupTitle, getHostName, fixupDomain, getReferrer, addEventListener, fromQuerystring, decorateQuerystring, attemptGetLocalStorage, attemptWriteLocalStorage, attemptDeleteLocalStorage, attemptGetSessionStorage, attemptWriteSessionStorage, findRootDomain, isValueInArray, deleteCookie, getCookiesWithPrefix, cookie, parseAndValidateInt, parseAndValidateFloat, getFilterByClass, getFilterByName, getCssClasses, getCssClassesAsString, deleteKeysFromLocalStorage, mergeConfigs, computeSamplingMode, removeCachedRandomNumber, truncateString, hasSessionStorage, hasLocalStorage, localStorageAccessible, detectViewport, detectDocumentSize, fixupUrl, BrowserPlugin, SharedState, createSharedState };
+export { dispatchToTrackers, dispatchToTrackersInCollection, trackerExists, addTracker, getTracker, getTrackers, allTrackers, allTrackerNames, removeTrackers, BuiltInContexts, AnonymousTrackingOptions, StateStorageStrategy, Platform, CookieSameSite, EventMethod, TraceparentGenerationConfig, metaTagsTrackingConfig, networkRequestTrackingConfig, networkConfig, ConvivaTrackerConfiguration, DeviceMetadata, DeviceMetadataConstants, ConvivaDeviceMetadata, ConvivaConstants, TrackerConfiguration, ActivityCallbackData, ActivityCallback, ActivityTrackingConfiguration, ActivityTrackingConfigurationCallback, PageViewEvent, CustomEvent, DisableAnonymousTrackingConfiguration, EnableAnonymousTrackingConfiguration, ClearUserDataConfiguration, FlushBufferConfiguration, BrowserPluginConfiguration, ErrorEventProperties, BrowserTracker, FilterCriterion, isString, isInteger, isFunction, fixupTitle, getHostName, fixupDomain, getReferrer, addEventListener, fromQuerystring, decorateQuerystring, attemptGetLocalStorage, attemptWriteLocalStorage, attemptDeleteLocalStorage, attemptGetSessionStorage, attemptWriteSessionStorage, findRootDomain, isValueInArray, deleteCookie, getCookiesWithPrefix, cookie, parseAndValidateInt, parseAndValidateFloat, getFilterByClass, getFilterByName, getCssClasses, getCssClassesAsString, deleteKeysFromLocalStorage, mergeConfigs, computeSamplingMode, removeCachedRandomNumber, truncateString, getAbortController, getAbortControllerSignal, createAbortSignalAndController, resetAbortSignalAndController, hasSessionStorage, hasLocalStorage, localStorageAccessible, detectViewport, detectDocumentSize, fixupUrl, BrowserPlugin, SharedState, createSharedState };
