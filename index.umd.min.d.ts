@@ -893,7 +893,7 @@ declare function getReferrer(oldLocation?: string): string;
 /**
  * Cross-browser helper function to add event handler
  */
-declare function addEventListener(element: HTMLElement | EventTarget, eventType: string, eventHandler: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): true | void;
+declare function addEventListener(element: HTMLElement | EventTarget, eventType: string, eventHandler: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): boolean | void;
 /**
  * Return value from name-value pair in querystring
  */
