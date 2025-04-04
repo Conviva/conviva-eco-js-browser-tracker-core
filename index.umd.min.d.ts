@@ -240,6 +240,7 @@ declare namespace ConvivaConstants {
     const REMOTE_CONFIG_URL_PREFIX = "https://rc.conviva.com/js/";
     const REMOTE_CONFIG_FILE_NAME = "/remote_config.json";
     const SAMPLING_STORAGE_RANDOM_NUMBER_KEY = "ConvivaSamplingRandomNumber";
+    const VISUAL_LABELLING_CONFIG = "ConvivaVisualLabellingConfig";
     const DIAGNOSTIC_INFO_MAX_LENGTH: {
         MAX_MESSAGE_LENGTH: number;
         MAX_STACK_LENGTH: number;
@@ -430,6 +431,7 @@ type TrackerConfiguration = {
      * Possible types of Device Metadata.
      */
     deviceMetadata?: ConvivaDeviceMetadata;
+    trackerVersionSuffix?: string;
 };
 /**
  * The data which is passed to the Activity Tracking callback
