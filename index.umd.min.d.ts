@@ -432,6 +432,10 @@ type TrackerConfiguration = {
      */
     deviceMetadata?: ConvivaDeviceMetadata;
     trackerVersionSuffix?: string;
+    /**
+     * Only for rerouting the traffic to a specific url
+     */
+    proxyGatewayUrl?: string;
 };
 /**
  * The data which is passed to the Activity Tracking callback
