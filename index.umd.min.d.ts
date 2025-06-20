@@ -249,6 +249,9 @@ declare namespace ConvivaConstants {
     };
     const CLICK_KEY_MAX_LENGTH = 1024;
     const CLICK_DEBOUNCING_DELAY = 300;
+    const CLICK_MAX_DEPTH = 16;
+    const MAX_NATIVE_SCAN = 16;
+    const MAX_NATIVE_SCAN_LEGACY = 8;
 }
 /**
  * The configuration object for initialising the tracker
