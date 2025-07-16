@@ -252,6 +252,7 @@ declare namespace ConvivaConstants {
     const CLICK_MAX_DEPTH = 16;
     const MAX_NATIVE_SCAN = 16;
     const MAX_NATIVE_SCAN_LEGACY = 8;
+    const PAGE_URL_QUERY_PARAMS = "pgq";
 }
 /**
  * The configuration object for initialising the tracker
