@@ -440,6 +440,10 @@ type TrackerConfiguration = {
      * Only for rerouting the traffic to a specific url
      */
     proxyGatewayUrl?: string;
+    /**
+     * Field value to control the common events for shopify pixel
+     */
+    enableCommonEvents?: boolean;
 };
 /**
  * The data which is passed to the Activity Tracking callback
