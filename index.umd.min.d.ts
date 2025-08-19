@@ -113,6 +113,10 @@ type ConvivaTrackerConfiguration = {
     metaTagsTracking?: metaTagsTrackingConfig;
     networkRequestTracking?: networkRequestTrackingConfig;
     network?: networkConfig;
+    /**
+     * Field value to control saving and using clId in cookies
+     */
+    enableClIdInCookies?: boolean;
 };
 /**
  * Possible types of Device Metadata.
@@ -1061,6 +1065,13 @@ declare function removeCachedRandomNumber(): void;
  * @returns The truncated string
  */
 declare function truncateString(str: string, maxLength: number): string;
+/**
+ * Returns an integer when:
+ *   • input is already an integer number, OR
+ *   • input is a base-10 integer string (optional ± sign).
+ * Otherwise returns undefined.
+ */
+declare function intOrUndefined(value: number | string): number | undefined;
 declare const getAbortController: () => AbortController | undefined;
 declare const getAbortControllerSignal: () => AbortSignal | undefined;
 declare const createAbortSignalAndController: () => void;
@@ -1103,4 +1114,4 @@ declare function detectDocumentSize(): string;
 * Fix-up URL when page rendered from search engine cache or translated page.
 */
 declare function fixupUrl(hostName: string, href: string, referrer: string): string[];
-export { dispatchToTrackers, dispatchToTrackersInCollection, trackerExists, addTracker, getTracker, getTrackers, allTrackers, allTrackerNames, removeTrackers, BuiltInContexts, AnonymousTrackingOptions, StateStorageStrategy, Platform, CookieSameSite, EventMethod, TraceparentGenerationConfig, metaTagsTrackingConfig, networkRequestTrackingConfig, networkConfig, ConvivaTrackerConfiguration, DeviceMetadata, DeviceMetadataConstants, ConvivaDeviceMetadata, ConvivaConstants, TrackerConfiguration, ActivityCallbackData, ActivityCallback, ActivityTrackingConfiguration, ActivityTrackingConfigurationCallback, PageViewEvent, CustomEvent, DisableAnonymousTrackingConfiguration, EnableAnonymousTrackingConfiguration, ClearUserDataConfiguration, FlushBufferConfiguration, BrowserPluginConfiguration, ErrorEventProperties, BrowserTracker, FilterCriterion, isString, isInteger, isFunction, fixupTitle, getHostName, fixupDomain, getReferrer, addEventListener, fromQuerystring, decorateQuerystring, attemptGetLocalStorage, attemptWriteLocalStorage, attemptDeleteLocalStorage, attemptGetSessionStorage, attemptWriteSessionStorage, findRootDomain, isValueInArray, deleteCookie, getCookiesWithPrefix, cookie, parseAndValidateInt, parseAndValidateFloat, getFilterByClass, getFilterByName, getCssClasses, getCssClassesAsString, deleteKeysFromLocalStorage, mergeConfigs, computeSamplingMode, removeCachedRandomNumber, truncateString, getAbortController, getAbortControllerSignal, createAbortSignalAndController, resetAbortSignalAndController, hasSessionStorage, hasLocalStorage, localStorageAccessible, detectViewport, detectDocumentSize, fixupUrl, BrowserPlugin, SharedState, createSharedState };
+export { dispatchToTrackers, dispatchToTrackersInCollection, trackerExists, addTracker, getTracker, getTrackers, allTrackers, allTrackerNames, removeTrackers, BuiltInContexts, AnonymousTrackingOptions, StateStorageStrategy, Platform, CookieSameSite, EventMethod, TraceparentGenerationConfig, metaTagsTrackingConfig, networkRequestTrackingConfig, networkConfig, ConvivaTrackerConfiguration, DeviceMetadata, DeviceMetadataConstants, ConvivaDeviceMetadata, ConvivaConstants, TrackerConfiguration, ActivityCallbackData, ActivityCallback, ActivityTrackingConfiguration, ActivityTrackingConfigurationCallback, PageViewEvent, CustomEvent, DisableAnonymousTrackingConfiguration, EnableAnonymousTrackingConfiguration, ClearUserDataConfiguration, FlushBufferConfiguration, BrowserPluginConfiguration, ErrorEventProperties, BrowserTracker, FilterCriterion, isString, isInteger, isFunction, fixupTitle, getHostName, fixupDomain, getReferrer, addEventListener, fromQuerystring, decorateQuerystring, attemptGetLocalStorage, attemptWriteLocalStorage, attemptDeleteLocalStorage, attemptGetSessionStorage, attemptWriteSessionStorage, findRootDomain, isValueInArray, deleteCookie, getCookiesWithPrefix, cookie, parseAndValidateInt, parseAndValidateFloat, getFilterByClass, getFilterByName, getCssClasses, getCssClassesAsString, deleteKeysFromLocalStorage, mergeConfigs, computeSamplingMode, removeCachedRandomNumber, truncateString, intOrUndefined, getAbortController, getAbortControllerSignal, createAbortSignalAndController, resetAbortSignalAndController, hasSessionStorage, hasLocalStorage, localStorageAccessible, detectViewport, detectDocumentSize, fixupUrl, BrowserPlugin, SharedState, createSharedState };
