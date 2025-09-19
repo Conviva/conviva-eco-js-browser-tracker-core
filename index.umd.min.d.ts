@@ -192,16 +192,17 @@ interface ConvivaDeviceMetadata {
     [DeviceMetadata.BRAND]?: string;
     [DeviceMetadata.MANUFACTURER]?: string;
     [DeviceMetadata.MODEL]?: string;
-    [DeviceMetadata.TYPE]?: (typeof DeviceMetadataConstants.DeviceType)[keyof typeof DeviceMetadataConstants.DeviceType];
+    [DeviceMetadata.TYPE]?: typeof DeviceMetadataConstants.DeviceType[keyof typeof DeviceMetadataConstants.DeviceType];
     [DeviceMetadata.VERSION]?: string;
     [DeviceMetadata.OS_NAME]?: string;
     [DeviceMetadata.OS_VERSION]?: string;
-    [DeviceMetadata.CATEGORY]: (typeof DeviceMetadataConstants.DeviceCategory)[keyof typeof DeviceMetadataConstants.DeviceCategory];
+    [DeviceMetadata.CATEGORY]: typeof DeviceMetadataConstants.DeviceCategory[keyof typeof DeviceMetadataConstants.DeviceCategory];
     [DeviceMetadata.FRAMEWORK_NAME]?: string;
     [DeviceMetadata.FRAMEWORK_VERSION]?: string;
 }
 declare namespace ConvivaConstants {
     const TRACEPARENT_HEADER_KEY = "traceparent";
+    const BAGGAGE_HEADER_KEY = "baggage";
     enum SAMPLING_MODES {
         NONE = "NONE",
         RCFG = "RCFG"
@@ -695,6 +696,12 @@ interface BrowserTracker {
      */
     setUserId: (userId?: string | null) => void;
     /**
+     * Set conversation ID for baggage headers.
+     *
+     * @param conversationId - The conversation ID string
+     */
+    setConversationId: (conversationId: string) => void;
+    /**
      * Set the business-defined user ID for this user using the location querystring.
      *
      * @param querystringField - Name of a querystring name-value pair
@@ -802,6 +809,34 @@ interface BrowserTracker {
     trackLinkClick: (event: clickElementEvent & CommonEventProperties) => void;
     trackErrorEvent: (event: ErrorEventProperties & CommonEventProperties) => void;
     getPageViewSent: () => boolean;
+}
+/**
+ * Rich content inference condition for pattern matching in SSE data
+ */
+interface RichContentInferenceCondition {
+    /** The type of content to detect (e.g., 'TEXT', 'IMG', 'URL') */
+    type: string;
+    /** The key in the data to search (e.g., 'query', 'responseText') */
+    key: string;
+    /** The operation to perform (e.g., 'contains') */
+    op: string;
+    /** Array of values to match against */
+    val: string[];
+}
+/**
+ * Rich content inference configuration
+ */
+interface RichContentInferenceConfig {
+    /** Array of conditions for pattern matching */
+    cond: RichContentInferenceCondition[];
+}
+/**
+ * Rich content inference results - maps content type to detected patterns
+ */
+interface RichContentInferenceResults {
+    [contentType: string]: {
+        [pattern: string]: boolean;
+    };
 }
 /**
  * Dispatch function to all specified trackers
@@ -1115,4 +1150,4 @@ declare function detectDocumentSize(): string;
 * Fix-up URL when page rendered from search engine cache or translated page.
 */
 declare function fixupUrl(hostName: string, href: string, referrer: string): string[];
-export { dispatchToTrackers, dispatchToTrackersInCollection, trackerExists, addTracker, getTracker, getTrackers, allTrackers, allTrackerNames, removeTrackers, BuiltInContexts, AnonymousTrackingOptions, StateStorageStrategy, Platform, CookieSameSite, EventMethod, TraceparentGenerationConfig, metaTagsTrackingConfig, networkRequestTrackingConfig, networkConfig, ConvivaTrackerConfiguration, DeviceMetadata, DeviceMetadataConstants, ConvivaDeviceMetadata, ConvivaConstants, TrackerConfiguration, ActivityCallbackData, ActivityCallback, ActivityTrackingConfiguration, ActivityTrackingConfigurationCallback, PageViewEvent, CustomEvent, DisableAnonymousTrackingConfiguration, EnableAnonymousTrackingConfiguration, ClearUserDataConfiguration, FlushBufferConfiguration, BrowserPluginConfiguration, ErrorEventProperties, BrowserTracker, FilterCriterion, isString, isInteger, isFunction, fixupTitle, getHostName, fixupDomain, getReferrer, addEventListener, fromQuerystring, decorateQuerystring, attemptGetLocalStorage, attemptWriteLocalStorage, attemptDeleteLocalStorage, attemptGetSessionStorage, attemptWriteSessionStorage, findRootDomain, isValueInArray, deleteCookie, getCookiesWithPrefix, cookie, parseAndValidateInt, parseAndValidateFloat, getFilterByClass, getFilterByName, getCssClasses, getCssClassesAsString, deleteKeysFromLocalStorage, mergeConfigs, computeSamplingMode, removeCachedRandomNumber, truncateString, intOrUndefined, getAbortController, getAbortControllerSignal, createAbortSignalAndController, resetAbortSignalAndController, hasSessionStorage, hasLocalStorage, localStorageAccessible, detectViewport, detectDocumentSize, fixupUrl, BrowserPlugin, SharedState, createSharedState };
+export { dispatchToTrackers, dispatchToTrackersInCollection, trackerExists, addTracker, getTracker, getTrackers, allTrackers, allTrackerNames, removeTrackers, BuiltInContexts, AnonymousTrackingOptions, StateStorageStrategy, Platform, CookieSameSite, EventMethod, TraceparentGenerationConfig, metaTagsTrackingConfig, networkRequestTrackingConfig, networkConfig, ConvivaTrackerConfiguration, DeviceMetadata, DeviceMetadataConstants, ConvivaDeviceMetadata, ConvivaConstants, TrackerConfiguration, ActivityCallbackData, ActivityCallback, ActivityTrackingConfiguration, ActivityTrackingConfigurationCallback, PageViewEvent, CustomEvent, DisableAnonymousTrackingConfiguration, EnableAnonymousTrackingConfiguration, ClearUserDataConfiguration, FlushBufferConfiguration, BrowserPluginConfiguration, ErrorEventProperties, BrowserTracker, RichContentInferenceCondition, RichContentInferenceConfig, RichContentInferenceResults, FilterCriterion, isString, isInteger, isFunction, fixupTitle, getHostName, fixupDomain, getReferrer, addEventListener, fromQuerystring, decorateQuerystring, attemptGetLocalStorage, attemptWriteLocalStorage, attemptDeleteLocalStorage, attemptGetSessionStorage, attemptWriteSessionStorage, findRootDomain, isValueInArray, deleteCookie, getCookiesWithPrefix, cookie, parseAndValidateInt, parseAndValidateFloat, getFilterByClass, getFilterByName, getCssClasses, getCssClassesAsString, deleteKeysFromLocalStorage, mergeConfigs, computeSamplingMode, removeCachedRandomNumber, truncateString, intOrUndefined, getAbortController, getAbortControllerSignal, createAbortSignalAndController, resetAbortSignalAndController, hasSessionStorage, hasLocalStorage, localStorageAccessible, detectViewport, detectDocumentSize, fixupUrl, BrowserPlugin, SharedState, createSharedState };
