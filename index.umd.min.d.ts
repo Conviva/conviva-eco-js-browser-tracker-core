@@ -113,6 +113,11 @@ type ConvivaTrackerConfiguration = {
     metaTagsTracking?: metaTagsTrackingConfig;
     networkRequestTracking?: networkRequestTrackingConfig;
     network?: networkConfig;
+    plainTextChunkTracking?: {
+        enabled: boolean;
+        endpoints: string[];
+        delimiter?: RegExp;
+    };
     /**
      * Field value to control saving and using clId in cookies
      */
