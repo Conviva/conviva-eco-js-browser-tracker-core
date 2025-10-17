@@ -113,11 +113,6 @@ type ConvivaTrackerConfiguration = {
     metaTagsTracking?: metaTagsTrackingConfig;
     networkRequestTracking?: networkRequestTrackingConfig;
     network?: networkConfig;
-    plainTextChunkTracking?: {
-        enabled: boolean;
-        endpoints: string[];
-        delimiter?: RegExp;
-    };
     /**
      * Field value to control saving and using clId in cookies
      */
@@ -264,6 +259,11 @@ declare namespace ConvivaConstants {
     const MAX_NATIVE_SCAN = 16;
     const MAX_NATIVE_SCAN_LEGACY = 8;
     const PAGE_URL_QUERY_PARAMS = "pgq";
+    const V2A_CUSTOM_EVENTS: readonly [
+        "c3.video.custom_event",
+        "c3.sdk.custom_event",
+        "c3.ad.custom_event"
+    ];
 }
 /**
  * The configuration object for initialising the tracker
@@ -756,6 +756,16 @@ interface BrowserTracker {
      * @param event - The Page View Event properties
      */
     trackPageView: (event?: PageViewEvent & CommonEventProperties) => void;
+    /**
+     * Start page ping
+     *
+     * @param event - The Page Ping Event properties
+     */
+    trackPagePing: (event?: PageViewEvent & CommonEventProperties) => void;
+    /**
+     * Set page meta tags as custom tags
+     */
+    setPageMetaTagsAsCustomTags: () => void;
     /**
      * Set Custom Tags context
      *
