@@ -197,11 +197,11 @@ interface ConvivaDeviceMetadata {
     [DeviceMetadata.BRAND]?: string;
     [DeviceMetadata.MANUFACTURER]?: string;
     [DeviceMetadata.MODEL]?: string;
-    [DeviceMetadata.TYPE]?: typeof DeviceMetadataConstants.DeviceType[keyof typeof DeviceMetadataConstants.DeviceType];
+    [DeviceMetadata.TYPE]?: (typeof DeviceMetadataConstants.DeviceType)[keyof typeof DeviceMetadataConstants.DeviceType];
     [DeviceMetadata.VERSION]?: string;
     [DeviceMetadata.OS_NAME]?: string;
     [DeviceMetadata.OS_VERSION]?: string;
-    [DeviceMetadata.CATEGORY]: typeof DeviceMetadataConstants.DeviceCategory[keyof typeof DeviceMetadataConstants.DeviceCategory];
+    [DeviceMetadata.CATEGORY]: (typeof DeviceMetadataConstants.DeviceCategory)[keyof typeof DeviceMetadataConstants.DeviceCategory];
     [DeviceMetadata.FRAMEWORK_NAME]?: string;
     [DeviceMetadata.FRAMEWORK_VERSION]?: string;
 }
@@ -257,6 +257,7 @@ declare namespace ConvivaConstants {
     const SAMPLING_STORAGE_RANDOM_NUMBER_KEY = "ConvivaSamplingRandomNumber";
     const VISUAL_LABELLING_CONFIG = "ConvivaVisualLabellingConfig";
     const SESSION_RECORDING_STARTED = "ConvivaSessionRecordingStarted";
+    const SAMPLING_MODE_STORAGE_KEY = "ConvivaSamplingMode";
     const DIAGNOSTIC_INFO_MAX_LENGTH: {
         MAX_MESSAGE_LENGTH: number;
         MAX_STACK_LENGTH: number;
