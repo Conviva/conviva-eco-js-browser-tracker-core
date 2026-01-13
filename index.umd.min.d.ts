@@ -40,7 +40,7 @@ declare global {
 declare class SharedState {
     /* List of request queues - one per Tracker instance */
     outQueues: Array<unknown>;
-    bufferFlushers: Array<(sync: boolean) => void>;
+    bufferFlushers: Array<(sync: boolean, useBeaconForBeforeunload?: boolean) => void>;
     /* DOM Ready */
     hasLoaded: boolean;
     registeredOnLoadHandlers: Array<() => void>;
@@ -197,11 +197,11 @@ interface ConvivaDeviceMetadata {
     [DeviceMetadata.BRAND]?: string;
     [DeviceMetadata.MANUFACTURER]?: string;
     [DeviceMetadata.MODEL]?: string;
-    [DeviceMetadata.TYPE]?: (typeof DeviceMetadataConstants.DeviceType)[keyof typeof DeviceMetadataConstants.DeviceType];
+    [DeviceMetadata.TYPE]?: typeof DeviceMetadataConstants.DeviceType[keyof typeof DeviceMetadataConstants.DeviceType];
     [DeviceMetadata.VERSION]?: string;
     [DeviceMetadata.OS_NAME]?: string;
     [DeviceMetadata.OS_VERSION]?: string;
-    [DeviceMetadata.CATEGORY]: (typeof DeviceMetadataConstants.DeviceCategory)[keyof typeof DeviceMetadataConstants.DeviceCategory];
+    [DeviceMetadata.CATEGORY]: typeof DeviceMetadataConstants.DeviceCategory[keyof typeof DeviceMetadataConstants.DeviceCategory];
     [DeviceMetadata.FRAMEWORK_NAME]?: string;
     [DeviceMetadata.FRAMEWORK_VERSION]?: string;
 }
@@ -250,9 +250,10 @@ declare namespace ConvivaConstants {
         BOTH = "both"
     }
     const REMOTE_CONFIG_STORAGE_KEY = "ConvivaRemoteConfig";
+    const REMOTE_CONFIG_RCV_KEY = "ConvivaRemoteConfigRCV";
     const END_POINT_STORAGE_KEY = "ConvivaEndpoint";
     const DEFAULT_END_POINT = "https://appgw.conviva.com";
-    const REMOTE_CONFIG_URL_PREFIX = "https://rc.conviva.com/js/";
+    const REMOTE_CONFIG_URL_PREFIX = "https://rcg.conviva.com/js/";
     const REMOTE_CONFIG_FILE_NAME = "/remote_config.json";
     const SAMPLING_STORAGE_RANDOM_NUMBER_KEY = "ConvivaSamplingRandomNumber";
     const VISUAL_LABELLING_CONFIG = "ConvivaVisualLabellingConfig";
