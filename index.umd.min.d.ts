@@ -370,11 +370,6 @@ type TrackerConfiguration = {
      */
     bufferSize?: number;
     /**
-     * Configure the cross domain linker which will add user identifiers to
-     * links on the callback
-     */
-    crossDomainLinker?: (elt: HTMLAnchorElement | HTMLAreaElement) => boolean;
-    /**
      * The max size a GET request (its complete URL) can be. Requests over this size will be tried as a POST request.
      * @defaultValue unlimited
      */
@@ -529,6 +524,99 @@ interface CustomEvent {
     contextCallback?: (() => Array<SelfDescribingJson>) | null;
 }
 /**
+ * Line item for a revenue/purchase event.
+ * Aligned with Business Metrics (Revenue Metrics) doc: purchased items array.
+ * All fields optional per item.
+ */
+/**
+ * A single purchased line item within a RevenueEvent.
+ *
+ * All named fields are strictly typed by TypeScript.
+ * Use `extraMetadata` for any custom item-level attributes not covered above
+ * (e.g. warehouseId, subscriptionType, giftWrapped).
+ * This mirrors the `extraMetadata: [String: Any]` field on iOS/Android.
+ */
+interface RevenueEventItem {
+    /** Item / product id */
+    productId?: string;
+    /** Item name */
+    name?: string;
+    /** Item SKU */
+    sku?: string;
+    /** Category — single string or array of strings */
+    category?: string | string[];
+    /** Price per unit */
+    unitPrice?: number;
+    /** Quantity purchased */
+    quantity?: number;
+    /** Per-item discount amount */
+    discount?: number;
+    /** Brand */
+    brand?: string;
+    /** Variant (size, color, etc.) */
+    variant?: string;
+    /**
+     * Any additional item-level custom metadata.
+     * Keys and values are forwarded as-is into the items array payload.
+     * Must be a plain object — primitives are not accepted.
+     * Equivalent to `extraMetadata: Map<String, Any?>` on Android /
+     * `extraMetadata: [String: Any]` on iOS.
+     */
+    extraMetadata?: Record<string, unknown> & object;
+}
+/**
+ * Revenue / purchase event payload for Business Metrics tracking.
+ *
+ * **Required fields:** `totalOrderAmount`, `transactionId`, `currency`.
+ * All other fields are optional.
+ *
+ * TypeScript enforces the type of every named field at compile time — no
+ * `any` is needed. Pass custom order-level attributes via `extraMetadata`
+ * rather than adding arbitrary keys directly to the object.
+ *
+ * NOTE: `transactionId` is the canonical order identifier, aligned with the
+ * GTM template's `revenueOrderId` field. If your system uses an "orderId",
+ * pass its value here as `transactionId`.
+ */
+interface RevenueEvent {
+    /** Total order amount — must be a finite number (required) */
+    totalOrderAmount: number;
+    /**
+     * Transaction / Order ID (required).
+     * Canonical order identifier consistent with the GTM template.
+     * If your system uses an "orderId", pass it here as transactionId.
+     */
+    transactionId: string;
+    /** ISO 4217 currency code, e.g. "USD", "EUR" (required) */
+    currency: string;
+    /** Tax amount */
+    taxAmount?: number;
+    /** Shipping cost */
+    shippingCost?: number;
+    /** Order-level discount or coupon value */
+    discount?: number;
+    /** Number of distinct items in the cart */
+    cartSize?: number;
+    /** Payment method (e.g. "card", "ApplePay", "payPal") */
+    paymentMethod?: string;
+    /** Payment provider (e.g. "Stripe", "Adyen") */
+    paymentProvider?: string;
+    /** Order status (e.g. "completed", "pending") */
+    orderStatus?: string;
+    /** Array of purchased line items */
+    items?: RevenueEventItem[];
+    /**
+     * Any additional order-level custom metadata (e.g. promoCode, campaignId).
+     * Keys and values are merged flat into the `conviva_revenue_event` payload,
+     * mirroring the GTM template's "Additional metadata" key/value table and
+     * "Revenue data object" variable.
+     * Must be a plain object — primitives are not accepted.
+     * Equivalent to `extraMetadata: Map<String, Any?>` on Android /
+     * `extraMetadata: [String: Any]` on iOS.
+     */
+    extraMetadata?: Record<string, unknown> & object;
+}
+/**
  * The configuration that can be changed when disabling anonymous tracking
  */
 interface DisableAnonymousTrackingConfiguration {
@@ -607,29 +695,11 @@ interface BrowserTracker {
      */
     getPageViewId: () => void;
     /**
-     * Get the cookie name as cookieNamePrefix + basename + . + domain.
-     *
-     * @returns Cookie name
-     */
-    getCookieName: (basename: string) => void;
-    /**
      * Get the current user ID (as set previously with setUserId()).
      *
      * @returns Business-defined user ID
      */
     getUserId: () => void;
-    /**
-     * Get visitor ID (from first party cookie)
-     *
-     * @returns Visitor ID (or null, if not yet known)
-     */
-    getDomainUserId: () => void;
-    /**
-     * Get the visitor information (from first party cookie)
-     *
-     * @returns The domain user information array
-     */
-    getDomainUserInfo: () => void;
     /**
      * Override referrer
      *
@@ -661,27 +731,9 @@ interface BrowserTracker {
      */
     discardBrace: (enableFilter: boolean) => void;
     /**
-     * Set first-party cookie path
-     *
-     * @param path - The path for cookies
-     */
-    setCookiePath: (path: string) => void;
-    /**
-     * Set visitor cookie timeout (in seconds)
-     *
-     * @param timeout - The timeout for the user identifier cookie
-     */
-    setVisitorCookieTimeout: (timeout: number) => void;
-    /**
      * Expires current session and starts a new session.
      */
     newSession: () => void;
-    /**
-     * Enable querystring decoration for links passing a filter
-     *
-     * @param crossDomainLinkerCriterion - Function used to determine which links to decorate
-     */
-    crossDomainLinker: (crossDomainLinkerCriterion: (elt: HTMLAnchorElement | HTMLAreaElement) => boolean) => void;
     /**
      * Enables page activity tracking (sends page
      * pings to the Collector regularly).
@@ -798,6 +850,12 @@ interface BrowserTracker {
      * @param event - The Custom Event properties
      */
     trackCustomEvent: (event?: CustomEvent & CommonEventProperties) => void;
+    /**
+     * Log a revenue/purchase event; forwards to custom event conviva_revenue_event.
+     *
+     * @param event - Revenue event properties (totalOrderAmount, transactionId, currency, etc.)
+     */
+    trackRevenueEvent: (event?: RevenueEvent & CommonEventProperties) => void;
     /**
      * Disables anonymous tracking if active (ie. tracker initialized with `anonymousTracking`)
      * For stateStorageStrategy override, uses supplied value first,
@@ -1213,4 +1271,4 @@ declare function detectDocumentSize(): string;
 * Fix-up URL when page rendered from search engine cache or translated page.
 */
 declare function fixupUrl(hostName: string, href: string, referrer: string): string[];
-export { dispatchToTrackers, dispatchToTrackersInCollection, trackerExists, addTracker, getTracker, getTrackers, allTrackers, allTrackerNames, removeTrackers, BuiltInContexts, AnonymousTrackingOptions, StateStorageStrategy, Platform, CookieSameSite, EventMethod, TraceparentGenerationConfig, metaTagsTrackingConfig, networkRequestTrackingConfig, networkConfig, ConvivaTrackerConfiguration, DeviceMetadata, DeviceMetadataConstants, ConvivaDeviceMetadata, ConvivaConstants, TrackerConfiguration, ActivityCallbackData, ActivityCallback, ActivityTrackingConfiguration, ActivityTrackingConfigurationCallback, PageViewEvent, CustomEvent, DisableAnonymousTrackingConfiguration, EnableAnonymousTrackingConfiguration, ClearUserDataConfiguration, FlushBufferConfiguration, BrowserPluginConfiguration, ErrorEventProperties, BrowserTracker, RichContentInferenceCondition, RichContentInferenceConfig, RichContentInferenceResults, RequestDetails, ResponseDetails, FilterCriterion, isString, isInteger, isFunction, fixupTitle, getHostName, fixupDomain, getReferrer, addEventListener, fromQuerystring, decorateQuerystring, attemptGetLocalStorage, attemptWriteLocalStorage, attemptDeleteLocalStorage, attemptGetSessionStorage, attemptWriteSessionStorage, findRootDomain, isValueInArray, deleteCookie, getCookiesWithPrefix, cookie, parseAndValidateInt, parseAndValidateFloat, getFilterByClass, getFilterByName, getCssClasses, getCssClassesAsString, deleteKeysFromLocalStorage, mergeConfigs, computeSamplingMode, removeCachedRandomNumber, truncateString, intOrUndefined, getAbortController, getAbortControllerSignal, createAbortSignalAndController, resetAbortSignalAndController, isPerformanceNavigationTiming, hasSessionStorage, hasLocalStorage, localStorageAccessible, detectViewport, detectDocumentSize, fixupUrl, BrowserPlugin, SharedState, createSharedState };
+export { dispatchToTrackers, dispatchToTrackersInCollection, trackerExists, addTracker, getTracker, getTrackers, allTrackers, allTrackerNames, removeTrackers, BuiltInContexts, AnonymousTrackingOptions, StateStorageStrategy, Platform, CookieSameSite, EventMethod, TraceparentGenerationConfig, metaTagsTrackingConfig, networkRequestTrackingConfig, networkConfig, ConvivaTrackerConfiguration, DeviceMetadata, DeviceMetadataConstants, ConvivaDeviceMetadata, ConvivaConstants, TrackerConfiguration, ActivityCallbackData, ActivityCallback, ActivityTrackingConfiguration, ActivityTrackingConfigurationCallback, PageViewEvent, CustomEvent, RevenueEventItem, RevenueEvent, DisableAnonymousTrackingConfiguration, EnableAnonymousTrackingConfiguration, ClearUserDataConfiguration, FlushBufferConfiguration, BrowserPluginConfiguration, ErrorEventProperties, BrowserTracker, RichContentInferenceCondition, RichContentInferenceConfig, RichContentInferenceResults, RequestDetails, ResponseDetails, FilterCriterion, isString, isInteger, isFunction, fixupTitle, getHostName, fixupDomain, getReferrer, addEventListener, fromQuerystring, decorateQuerystring, attemptGetLocalStorage, attemptWriteLocalStorage, attemptDeleteLocalStorage, attemptGetSessionStorage, attemptWriteSessionStorage, findRootDomain, isValueInArray, deleteCookie, getCookiesWithPrefix, cookie, parseAndValidateInt, parseAndValidateFloat, getFilterByClass, getFilterByName, getCssClasses, getCssClassesAsString, deleteKeysFromLocalStorage, mergeConfigs, computeSamplingMode, removeCachedRandomNumber, truncateString, intOrUndefined, getAbortController, getAbortControllerSignal, createAbortSignalAndController, resetAbortSignalAndController, isPerformanceNavigationTiming, hasSessionStorage, hasLocalStorage, localStorageAccessible, detectViewport, detectDocumentSize, fixupUrl, BrowserPlugin, SharedState, createSharedState };
