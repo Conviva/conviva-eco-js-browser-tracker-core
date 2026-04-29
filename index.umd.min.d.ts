@@ -119,7 +119,9 @@ type ConvivaTrackerConfiguration = {
         delimiter?: RegExp;
     };
     /**
-     * Field value to control saving and using clId in cookies
+     * Controls saving and reading clId from cookies.
+     * Defaults to `true` when not specified. Set to `false` to disable
+     * cookie persistence and purge any existing clId cookie.
      */
     enableClIdInCookies?: boolean;
 };
@@ -253,6 +255,8 @@ declare namespace ConvivaConstants {
     const REMOTE_CONFIG_RCV_KEY = "ConvivaRemoteConfigRCV";
     const END_POINT_STORAGE_KEY = "ConvivaEndpoint";
     const DEFAULT_END_POINT = "https://appgw.conviva.com";
+    const IPV4_GATEWAY_URL = "https://ipv4.appgw.conviva.com/ctp";
+    const IPV6_GATEWAY_URL = "https://ipv6.appgw.conviva.com/ctp";
     const REMOTE_CONFIG_URL_PREFIX = "https://rcg.conviva.com/js/";
     const REMOTE_CONFIG_FILE_NAME = "/remote_config.json";
     const SAMPLING_STORAGE_RANDOM_NUMBER_KEY = "ConvivaSamplingRandomNumber";
@@ -899,6 +903,10 @@ interface BrowserTracker {
     trackButtonClick: (event: clickElementEvent & CommonEventProperties) => void;
     trackLinkClick: (event: clickElementEvent & CommonEventProperties) => void;
     trackErrorEvent: (event: ErrorEventProperties & CommonEventProperties) => void;
+    trackFormSubmitSuccess: (formId: string) => void;
+    trackFormSubmitError: (formId: string, errorType: string) => void;
+    trackFormView: (formId: string) => void;
+    trackFormValidationError: (formId: string, fieldName: string, errorType: string) => void;
     getPageViewSent: () => boolean;
     determineShouldTrack: (collectConfiguration: any, blockConfiguration: any, blocklist: any, safelist: any, response: any, requestDetails: any) => boolean;
 }
