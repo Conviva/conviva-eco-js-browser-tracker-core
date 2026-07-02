@@ -775,6 +775,12 @@ interface BrowserTracker {
      */
     setConversationId: (conversationId: string) => void;
     /**
+     * Set message ID for baggage headers.
+     *
+     * @param messageId - The message ID string
+     */
+    setMessageId: (messageId: string) => void;
+    /**
      * Set the business-defined user ID for this user using the location querystring.
      *
      * @param querystringField - Name of a querystring name-value pair
